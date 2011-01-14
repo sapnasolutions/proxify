@@ -18,6 +18,9 @@ class ApplicationController < ActionController::Base
     url = "http://" + url if(url.index(/\b(?:https?:\/\/)\S+\b/) == nil)
     get_url(url, params)
     session[:domain] =  url.match(/\b(?:https?:\/\/)\S+\b/).to_s
+    
+    send_data(@response, :type =>  "xml", :disposition  =>  'inline') if @response_format == "xml"
+    
   end
 
   def get_url(url, post_params = nil)
@@ -27,7 +30,7 @@ class ApplicationController < ActionController::Base
       @response = HTTParty.get(url)
     end
     @response_format = @response.headers["content-type"].split('/').last.split(';').first
-    @response =  @response_format == 'html' ? @response.html_safe : (@response_format == 'javascript' ? @response.to_json.html_safe : @response.to_xml.html_safe)
+    @response =  @response_format == 'html' ? @response.html_safe : (@response_format == 'javascript' ? @response.to_json.html_safe : @response.to_xml)
   end
 
 end
