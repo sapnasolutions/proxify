@@ -1,34 +1,23 @@
 require 'httparty'
 
 class ApplicationController < ActionController::Base
-  #protect_from_forgery
-  respond_to :xml, :json
 
-  def rescue_action(e)
-    puts "--------------------------------------In here"
-  end
-
-  def catch_all
-    #get_url(params[:url])
-    @response = HTTParty.get(session[:domain] + "/" + params[:path])
-    @response= @response.html_safe
-    render :template => "application/proxify"
+  def catch_routes
+    response = HTTParty.get(session[:domain] + "/" + params[:path])
+    send_data(response, :type =>  response.headers["content-type"].to_s, :disposition  =>  'inline')
   end
 
   def proxify
-    get_url(params[:url], params)
-    urls = params[:url].split("/")
-    session[:domain] =  urls[0..2].join('/')
-    puts "--------#{urls[0..2].join('/')}"
-     #@response = @response.html_safe unless @response.headers.has_value?("text/javascript")
-#    puts "***********#{@response.headers["content-type"].split('/').last.split(';').first}"
-     
-    #respond_with(@response)
-    respond_to do |format|
-      format.html{}
-      format.json{render :json=> @response}
-      format.xml{render :xml=> @response}
+    unless params[:url]
+      @response = "Welcome to proxify"
+      render :template => "application/index"
+      return
     end
+
+    url = params[:url]
+    url = "http://" + url if(url.index(/\b(?:https?:\/\/)\S+\b/) == nil)
+    get_url(url, params)
+    session[:domain] =  url.match(/\b(?:https?:\/\/)\S+\b/).to_s
   end
 
   def get_url(url, post_params = nil)
@@ -37,9 +26,8 @@ class ApplicationController < ActionController::Base
     else
       @response = HTTParty.get(url)
     end
-    @resp_format = @response.headers["content-type"].split('/').last.split(';').first
-    re=  @resp_format == 'html' ? @response.html_safe : (@resp_format == 'javascript' ? @response.to_json.html_safe : @response.to_xml.html_safe)
-    @response = re
+    @response_format = @response.headers["content-type"].split('/').last.split(';').first
+    @response =  @response_format == 'html' ? @response.html_safe : (@response_format == 'javascript' ? @response.to_json.html_safe : @response.to_xml.html_safe)
   end
 
 end
