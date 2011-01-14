@@ -31,7 +31,7 @@ class ApplicationController < ActionController::Base
   def check_session_domain
     if params[:url].blank? && session[:domain].present?
       params[:url] = session[:domain]
-    else
+    elsif params[:url].blank?
       render :template => "application/index"
       return
     end
