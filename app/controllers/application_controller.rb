@@ -1,7 +1,7 @@
 require 'httparty'
 
 class ApplicationController < ActionController::Base
-  before_filter :check_session_domain
+  before_filter :check_session_domain, :only => [:proxify, :catch_routes]
 
   def catch_routes
     response = HTTParty.get(session[:domain] + "/" + params[:path], :basic_auth => {:username => session[:basic_auth_username], :password => session[:basic_auth_password]})
@@ -20,6 +20,11 @@ class ApplicationController < ActionController::Base
   def credentials
   end
 
+  def clear_session
+    reset_session
+    redirect_to "/"
+  end
+
   ############
   private
   ############
@@ -33,12 +38,14 @@ class ApplicationController < ActionController::Base
   end
 
   def get_query_params
-     if params[:basic_auth_username].present?
+    if params[:basic_auth_username].present?
       session[:basic_auth_username] = params[:basic_auth_username]
       session[:basic_auth_password] = params[:basic_auth_password]
       @auth = {:username => params[:basic_auth_username], :password => params[:basic_auth_password]}
       options = request.post? ? { :query => params, :basic_auth => @auth } : {:basic_auth => @auth}
     else
+       session[:basic_auth_username] = nil
+       session[:basic_auth_password] = nil
       options = request.post? ? { :query => params} : {}
     end
     return options
