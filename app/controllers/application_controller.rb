@@ -4,7 +4,7 @@ class ApplicationController < ActionController::Base
   before_filter :check_session_domain
 
   def catch_routes
-    response = HTTParty.get(session[:domain] + "/" + params[:path])
+    response = HTTParty.get(session[:domain] + "/" + params[:path], :basic_auth => {:username => session[:basic_auth_username], :password => session[:basic_auth_password]})
     send_data(response, :type =>  response.headers["content-type"], :disposition  =>  'inline')
   end
 
@@ -34,6 +34,8 @@ class ApplicationController < ActionController::Base
 
   def get_query_params
      if params[:basic_auth_username].present?
+      session[:basic_auth_username] = params[:basic_auth_username]
+      session[:basic_auth_password] = params[:basic_auth_password]
       @auth = {:username => params[:basic_auth_username], :password => params[:basic_auth_password]}
       options = request.post? ? { :query => params, :basic_auth => @auth } : {:basic_auth => @auth}
     else
