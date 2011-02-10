@@ -24,3 +24,4 @@ Proxify::Application.configure do
   config.action_dispatch.best_standards_support = :builtin
 end
 
+SITE_URL = "http://localhost:3000/"
