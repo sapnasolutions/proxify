@@ -69,6 +69,6 @@ $(document).ready(function(){
 	*/
 });
 
-function go(){
+function proxify(){
 	window.location.href = "http://proxify.heroku.com/proxify/?url=" + document.getElementById('url').value;
-}
+};
