@@ -70,5 +70,5 @@ $(document).ready(function(){
 });
 
 function go(){
-	window.location.href += "proxify/?url=" + document.getElementById('url').value;
+	window.location.href += "?url=" + document.getElementById('url').value;
 }
