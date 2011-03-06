@@ -15,7 +15,7 @@ class ApplicationController < ActionController::Base
   end
 
   def index
-	reset_session
+	session[:domain] = ""
   end
   
   def credentials
