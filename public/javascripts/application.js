@@ -70,5 +70,6 @@ $(document).ready(function(){
 });
 
 function go(){
+	alert('go');
 	window.location.href = "http://proxify.heroku.com/proxify/?url=" + document.getElementById('url').value;
 };
