@@ -15,7 +15,7 @@ class ApplicationController < ActionController::Base
   end
 
   def index
-	session[:domain] = ""
+	session[:domain] = "" if session[:domain]
   end
   
   def credentials
