@@ -14,6 +14,10 @@ class ApplicationController < ActionController::Base
     session[:domain] =  url
   end
 
+  def index
+	clear_session
+  end
+  
   def credentials
   end
 
