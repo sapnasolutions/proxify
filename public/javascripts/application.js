@@ -68,3 +68,7 @@ $(document).ready(function(){
 	});
 	*/
 });
+
+function go(){
+	window.location.href += "?url=" + document.getElementById('url').value;
+}
