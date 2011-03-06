@@ -15,7 +15,7 @@ class ApplicationController < ActionController::Base
   end
 
   def index
-	clear_session
+	reset_session
   end
   
   def credentials
