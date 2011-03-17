@@ -1,17 +1,17 @@
 require 'httparty'
 
 class ApplicationController < ActionController::Base
-  before_filter :check_session_domain, :only => [:proxify, :catch_routes]
+  before_filter :check_session_domain, :check_request_header, :only => [:proxify, :catch_routes]
 
   def catch_routes
-    response = HTTParty.get(session[:domain] + "/" + params[:path], :basic_auth => {:username => session[:basic_auth_username], :password => session[:basic_auth_password]})
+    response = send_get
     render_asset_response(response)
   end
 
   def proxify
     url = url_check(params[:url])
-    get_url(url)
     session[:domain] =  url
+	get_url(url)
   end
 
   def index
@@ -32,11 +32,37 @@ class ApplicationController < ActionController::Base
 
   def get_url(url)
     options = get_query_params
-    @response = request.post? ? HTTParty.post(url, options) : HTTParty.get(url, options)
+    @response = request.post? ? send_post : send_get
     @response_format = @response.headers["content-type"].split('/').last.split(';').first
     redirect_to :credentials if @response.code == 401
     #@response =  @response_format == 'html' ? @response.html_safe : (@response_format == 'javascript' ? @response.to_json.html_safe : @response.to_xml)
     render_response
+  end
+  
+  def send_post
+	optional_hash = {}
+	unless request.headers[:authentication].blank?
+		base64_string = request.headers[:authentication].split(" ").last
+		optional_hash = {:username => username_from_base64(base64_string), :password => password_from_base64(base64_string)} 
+	end
+	HTTParty.post(session[:domain] + "/" + params[:path], :basic_auth => optional_hash)
+  end
+  
+  def send_get
+	optional_hash = {}
+	unless request.headers[:authentication].blank?
+		base64_string = request.headers[:authentication].split(" ").last
+		optional_hash = {:username => username_from_base64(base64_string), :password => password_from_base64(base64_string)} 
+	end
+	HTTParty.get(session[:domain] + "/" + params[:path], :basic_auth => optional_hash)
+  end
+  
+  def username_from_base64(base64_string)
+	username = Base64.decode64(base64_string).split(":").first
+  end
+  
+  def password_from_base64
+	password = Base64.decode64(base64_string).split(":").last
   end
   
   def render_response
@@ -87,6 +113,10 @@ class ApplicationController < ActionController::Base
     url = "http://" + url if(url.index(/\b(?:https?:\/\/)\S+\b/) == nil)
     url =  url.match(/\b(?:https?:\/\/)\S+\b/).to_s
     url
+  end
+  
+  def check_request_header
+	request.headers["username"]
   end
   
   def render_asset_response(response)
