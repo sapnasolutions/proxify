@@ -11,7 +11,7 @@ class ApplicationController < ActionController::Base
   def proxify
     url = url_check(params[:url])
     get_url(url)
-    session[:domain] =  url
+    session[:domain] =  url 
   end
 
   def index
