@@ -56,7 +56,7 @@ class ApplicationController < ActionController::Base
   def send_get
 	puts "==== in send_get ===="
 	optional_hash = {}
-	unless request.headers[:authentication].blank?
+	unless request.headers["authentication"].blank?
 		base64_string = request.headers[:authentication].split(" ").last
 		optional_hash = {:username => username_from_base64(base64_string), :password => password_from_base64(base64_string)} 
 	end
