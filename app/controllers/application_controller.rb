@@ -46,21 +46,25 @@ class ApplicationController < ActionController::Base
   def send_post
 	puts "==== in send_post ===="
 	optional_hash = {}
-	unless request.headers[:authentication].blank?
+	if request.headers[:authentication].blank?
+		HTTParty.post(session[:domain] + "/" + params[:path])
+	else
+		HTTParty.post(session[:domain] + "/" + params[:path], :basic_auth => optional_hash)
 		base64_string = request.headers[:authentication].split(" ").last
 		optional_hash = {:username => username_from_base64(base64_string), :password => password_from_base64(base64_string)} 
-	end
-	HTTParty.post(session[:domain] + "/" + params[:path], :basic_auth => optional_hash)
+	end	
   end
   
   def send_get
 	puts "==== in send_get ===="
 	optional_hash = {}
-	unless request.headers["authentication"].blank?
+	if request.headers["authentication"].blank?
+		HTTParty.get(session[:domain] + "/" + params[:path])
+	else
 		base64_string = request.headers[:authentication].split(" ").last
 		optional_hash = {:username => username_from_base64(base64_string), :password => password_from_base64(base64_string)} 
-	end
-	HTTParty.get(session[:domain] + "/" + params[:path], :basic_auth => optional_hash)
+		HTTParty.get(session[:domain] + "/" + params[:path], :basic_auth => optional_hash)
+	end	
   end
   
   def username_from_base64(base64_string)
