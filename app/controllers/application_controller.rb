@@ -4,11 +4,13 @@ class ApplicationController < ActionController::Base
   before_filter :check_session_domain, :check_request_header, :only => [:proxify, :catch_routes]
 
   def catch_routes
+	puts "==== in catch_routes ===="
     response = send_get
     render_asset_response(response)
   end
 
   def proxify
+	puts "==== in /proxify ===="
     url = url_check(params[:url])
     session[:domain] =  url
 	get_url(url)
@@ -19,6 +21,7 @@ class ApplicationController < ActionController::Base
   end
   
   def credentials
+	puts "==== in credentials ===="
   end
 
   def clear_session
@@ -31,6 +34,7 @@ class ApplicationController < ActionController::Base
   ############
 
   def get_url(url)
+	puts "==== in get_url ===="
     options = get_query_params
     @response = request.post? ? send_post : send_get
     @response_format = @response.headers["content-type"].split('/').last.split(';').first
@@ -40,6 +44,7 @@ class ApplicationController < ActionController::Base
   end
   
   def send_post
+	puts "==== in send_post ===="
 	optional_hash = {}
 	unless request.headers[:authentication].blank?
 		base64_string = request.headers[:authentication].split(" ").last
@@ -49,6 +54,7 @@ class ApplicationController < ActionController::Base
   end
   
   def send_get
+	puts "==== in send_get ===="
 	optional_hash = {}
 	unless request.headers[:authentication].blank?
 		base64_string = request.headers[:authentication].split(" ").last
