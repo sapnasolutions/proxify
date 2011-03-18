@@ -6,8 +6,12 @@ class ApplicationController < ActionController::Base
   def catch_routes
 	puts "==== in catch_routes ===="
     #response = send_get
-    response = HTTParty.get(session[:domain] + "/" + params[:path], :basic_auth => {:username => session[:basic_auth_username], :password => session[:basic_auth_password]})
-    render_asset_response(response)
+	if session[:basic_auth_username].nil? || session[:basic_auth_username].blank?
+		response = HTTParty.get(session[:domain] + "/" + params[:path])
+	else
+	    response = HTTParty.get(session[:domain] + "/" + params[:path], :basic_auth => {:username => session[:basic_auth_username], :password => session[:basic_auth_password]})
+    end
+	render_asset_response(response)
   end
 
   def proxify
