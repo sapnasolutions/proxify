@@ -41,7 +41,9 @@ class ApplicationController < ActionController::Base
   def get_url(url)
 	puts "==== in get_url ===="
     options = get_query_params
+	puts "options: #{options}"
     @response = request.post? ? HTTParty.post(url, options) : HTTParty.get(url, options)
+	puts "response: #{response}"
 	#@response = request.post? ? send_post : send_get
     @response_format = @response.headers["content-type"].split('/').last.split(';').first
     redirect_to :credentials if @response.code == 401
@@ -53,8 +55,10 @@ class ApplicationController < ActionController::Base
 	puts "==== in send_post ===="
 	optional_hash = {}
 	if request.headers[:authentication].blank?
+		puts "in if conditions, since headers[:authentication] is blank"
 		HTTParty.post(session[:domain] + "/" + params[:path])
 	else
+		puts "in else conditions, since headers[:authentication] is not blank"
 		HTTParty.post(session[:domain] + "/" + params[:path], :basic_auth => optional_hash)
 		base64_string = request.headers[:authentication].split(" ").last
 		optional_hash = {:username => username_from_base64(base64_string), :password => password_from_base64(base64_string)} 
